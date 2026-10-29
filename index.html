@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>College Schedule</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="app-title">📚 College Schedule</h1>
+      <p class="app-sub">Your weekly class & lecture timetable</p>
+    </div>
+    <button id="addBtn" class="btn-primary" aria-label="Add new class">+ Add Class</button>
+  </header>
+
+  <div class="week-nav">
+    <button id="prevWeek" class="btn-ghost" aria-label="Previous week">◀ Prev</button>
+    <span id="weekLabel" class="week-label" aria-live="polite"></span>
+    <button id="nextWeek" class="btn-ghost" aria-label="Next week">Next ▶</button>
+    <button id="todayBtn" class="btn-ghost" aria-label="Go to current week">Today</button>
+  </div>
+
+  <div class="legend" aria-label="Class type legend">
+    <span class="legend-item"><i class="dot lecture"></i> Lecture</span>
+    <span class="legend-item"><i class="dot lab"></i> Lab</span>
+    <span class="legend-item"><i class="dot practical"></i> Practical</span>
+    <span class="legend-item"><i class="dot self"></i> Self Study</span>
+    <span class="legend-item"><i class="dot free"></i> Free</span>
+  </div>
+
+  <div class="schedule-wrap">
+    <table class="timetable" role="grid" aria-label="Weekly timetable">
+      <thead>
+        <tr>
+          <th class="time-col" scope="col">Time</th>
+          <th scope="col">Mon</th>
+          <th scope="col">Tue</th>
+          <th scope="col">Wed</th>
+          <th scope="col">Thu</th>
+          <th scope="col">Fri</th>
+          <th scope="col">Sat</th>
+          <th scope="col">Sun</th>
+        </tr>
+      </thead>
+      <tbody id="timetableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <h2 id="modalTitle">Add Class</h2>
+      <form id="classForm" novalidate>
+        <div class="field">
+          <label for="fSubject">Subject / Topic <span class="required" aria-hidden="true">*</span></label>
+          <input id="fSubject" type="text" placeholder="e.g. Data Structures" required aria-required="true" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="fDay">Day <span class="required" aria-hidden="true">*</span></label>
+            <select id="fDay" required aria-required="true"></select>
+          </div>
+          <div class="field">
+            <label for="fStart">Start <span class="required" aria-hidden="true">*</span></label>
+            <input id="fStart" type="time" required aria-required="true" />
+          </div>
+          <div class="field">
+            <label for="fEnd">End <span class="required" aria-hidden="true">*</span></label>
+            <input id="fEnd" type="time" required aria-required="true" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="fType">Type</label>
+            <select id="fType">
+              <option value="lecture">Lecture</option>
+              <option value="lab">Lab</option>
+              <option value="practical">Practical</option>
+              <option value="self">Self Study</option>
+              <option value="free">Free</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fRoom">Room</label>
+            <input id="fRoom" type="text" placeholder="e.g. 304" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="fNotes">Notes</label>
+          <input id="fNotes" type="text" placeholder="e.g. Assignment due" />
+        </div>
+        <input id="fId" type="hidden" />
+        <input id="fWeekOffset" type="hidden" value="0" />
+        <div class="modal-actions">
+          <button type="button" id="deleteBtn" class="btn-danger hidden" aria-label="Delete this class">Delete</button>
+          <button type="button" id="cancelBtn" class="btn-ghost">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
