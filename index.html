@@ -3,106 +3,220 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>College Schedule</title>
+<title>College Schedule — Sec F (Room 211)</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<div class="app-container">
   <header class="app-header">
     <div class="header-left">
-      <h1 class="app-title">📚 College Schedule</h1>
-      <p class="app-sub">Your weekly class & lecture timetable</p>
+      <h1 class="app-title">📚 College Schedule — Section F</h1>
+      <p class="app-sub">G L Bajaj Group of Institutions, Mathura · Room 211 · Odd Sem 2026-27</p>
     </div>
-    <button id="addBtn" class="btn-primary" aria-label="Add new class">+ Add Class</button>
+    <div class="header-actions">
+      <button id="notifyBtn" class="btn-ghost">🔔 Reminders: <span id="notifyStatus">Off</span></button>
+      <button id="resetScheduleBtn" class="btn-ghost" title="Reload original college timetable">🔄 Reset Timetable</button>
+      <button id="slotsBtn" class="btn-ghost">⏰ Edit Slots</button>
+      <button id="addBtn" class="btn-primary">+ Add Class</button>
+    </div>
   </header>
 
-  <div class="week-nav">
-    <button id="prevWeek" class="btn-ghost" aria-label="Previous week">◀ Prev</button>
-    <span id="weekLabel" class="week-label" aria-live="polite"></span>
-    <button id="nextWeek" class="btn-ghost" aria-label="Next week">Next ▶</button>
-    <button id="todayBtn" class="btn-ghost" aria-label="Go to current week">Today</button>
+  <div id="reminderBanner" class="reminder-banner hidden">
+    <span class="bell-icon">🔔</span>
+    <span id="reminderBannerText"></span>
   </div>
 
-  <div class="legend" aria-label="Class type legend">
+  <div class="controls-bar">
+    <div class="day-filter">
+      <button class="day-tab active" data-day="all">All Days</button>
+      <button class="day-tab" data-day="Mon">Mon</button>
+      <button class="day-tab" data-day="Tue">Tue</button>
+      <button class="day-tab" data-day="Wed">Wed</button>
+      <button class="day-tab" data-day="Thu">Thu</button>
+      <button class="day-tab" data-day="Fri">Fri</button>
+      <button class="day-tab" data-day="Sat">Sat</button>
+    </div>
+
+    <div class="batch-filter">
+      <span class="batch-label">Batch:</span>
+      <button class="batch-tab active" data-batch="all">All</button>
+      <button class="batch-tab" data-batch="F1">Batch F1</button>
+      <button class="batch-tab" data-batch="F2">Batch F2</button>
+    </div>
+
+    <span id="classCount" class="quick-stats">0 classes</span>
+  </div>
+
+  <div class="legend">
     <span class="legend-item"><i class="dot lecture"></i> Lecture</span>
     <span class="legend-item"><i class="dot lab"></i> Lab</span>
-    <span class="legend-item"><i class="dot practical"></i> Practical</span>
-    <span class="legend-item"><i class="dot self"></i> Self Study</span>
-    <span class="legend-item"><i class="dot free"></i> Free</span>
+    <span class="legend-item"><i class="dot practical"></i> Tutorial / Practical</span>
+    <span class="legend-item"><i class="dot self"></i> Library / Self</span>
+    <span class="legend-item"><i class="dot free"></i> Break / Lunch</span>
+    <span class="legend-hint">💡 Tip: Switch between <strong>Batch F1</strong> / <strong>F2</strong> above, or click any slot to edit/add.</span>
   </div>
 
   <div class="schedule-wrap">
-    <table class="timetable" role="grid" aria-label="Weekly timetable">
+    <table class="timetable">
       <thead>
-        <tr>
-          <th class="time-col" scope="col">Time</th>
-          <th scope="col">Mon</th>
-          <th scope="col">Tue</th>
-          <th scope="col">Wed</th>
-          <th scope="col">Thu</th>
-          <th scope="col">Fri</th>
-          <th scope="col">Sat</th>
-          <th scope="col">Sun</th>
+        <tr id="timetableHeader">
+          <th class="time-col">Time</th>
+          <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
         </tr>
       </thead>
       <tbody id="timetableBody"></tbody>
     </table>
   </div>
+</div>
 
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-card">
+<!-- Add / Edit Modal -->
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-header">
       <h2 id="modalTitle">Add Class</h2>
-      <form id="classForm" novalidate>
+      <button type="button" class="close-x" id="closeModalBtn">&times;</button>
+    </div>
+    <form id="classForm">
+      <input id="fId" type="hidden" />
+      <div class="field">
+        <label for="fSubject">Subject / Course Name *</label>
+        <input id="fSubject" type="text" placeholder="e.g. MATH-I, PHYSICS, PL, EE" list="subjectDatalist" required />
+        <datalist id="subjectDatalist">
+          <option value="MATH-I (Calculus & Linear Algebra)">
+          <option value="PHYSICS (Quantum Physics)">
+          <option value="EE (Electrical Engineering)">
+          <option value="PL (Programming Language)">
+          <option value="PC (Professional Communication)">
+          <option value="AI (Intro to AI & Prompt Eng)">
+          <option value="DESIGN LAB">
+          <option value="PHYSICS LAB">
+          <option value="ELECTRICAL LAB">
+          <option value="PC LAB (Language Lab)">
+          <option value="MATH-I-T (Math Tutorial)">
+          <option value="PHY-T (Physics Tutorial)">
+          <option value="EE-T (Electrical Tutorial)">
+          <option value="PL-T (PL Tutorial)">
+          <option value="LIB (Library)">
+          <option value="Short Break">
+          <option value="Lunch Break">
+        </datalist>
+      </div>
+
+      <div class="field-row">
         <div class="field">
-          <label for="fSubject">Subject / Topic <span class="required" aria-hidden="true">*</span></label>
-          <input id="fSubject" type="text" placeholder="e.g. Data Structures" required aria-required="true" />
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label for="fDay">Day <span class="required" aria-hidden="true">*</span></label>
-            <select id="fDay" required aria-required="true"></select>
-          </div>
-          <div class="field">
-            <label for="fStart">Start <span class="required" aria-hidden="true">*</span></label>
-            <input id="fStart" type="time" required aria-required="true" />
-          </div>
-          <div class="field">
-            <label for="fEnd">End <span class="required" aria-hidden="true">*</span></label>
-            <input id="fEnd" type="time" required aria-required="true" />
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label for="fType">Type</label>
-            <select id="fType">
-              <option value="lecture">Lecture</option>
-              <option value="lab">Lab</option>
-              <option value="practical">Practical</option>
-              <option value="self">Self Study</option>
-              <option value="free">Free</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="fRoom">Room</label>
-            <input id="fRoom" type="text" placeholder="e.g. 304" />
-          </div>
+          <label for="fDay">Day *</label>
+          <select id="fDay" required>
+            <option value="Mon">Monday</option>
+            <option value="Tue">Tuesday</option>
+            <option value="Wed">Wednesday</option>
+            <option value="Thu">Thursday</option>
+            <option value="Fri">Friday</option>
+            <option value="Sat">Saturday</option>
+          </select>
         </div>
         <div class="field">
-          <label for="fNotes">Notes</label>
-          <input id="fNotes" type="text" placeholder="e.g. Assignment due" />
+          <label for="fBatch">Batch</label>
+          <select id="fBatch">
+            <option value="both">Both (Entire Sec F)</option>
+            <option value="F1">Batch F1 only</option>
+            <option value="F2">Batch F2 only</option>
+          </select>
         </div>
-        <input id="fId" type="hidden" />
-        <input id="fWeekOffset" type="hidden" value="0" />
-        <div class="modal-actions">
-          <button type="button" id="deleteBtn" class="btn-danger hidden" aria-label="Delete this class">Delete</button>
-          <button type="button" id="cancelBtn" class="btn-ghost">Cancel</button>
-          <button type="submit" class="btn-primary">Save</button>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="fType">Type</label>
+          <select id="fType">
+            <option value="lecture">Lecture</option>
+            <option value="lab">Lab</option>
+            <option value="practical">Tutorial / Practical</option>
+            <option value="self">Library / Self Study</option>
+            <option value="free">Break / Free</option>
+          </select>
         </div>
-      </form>
+        <div class="field">
+          <label for="fRoom">Room / Hall</label>
+          <input id="fRoom" type="text" placeholder="e.g. 211, Lab 2" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="fStart">Start Time *</label>
+          <input id="fStart" type="time" required />
+        </div>
+        <div class="field">
+          <label for="fEnd">End Time *</label>
+          <input id="fEnd" type="time" required />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="fTeacher">Teacher / Faculty</label>
+          <input id="fTeacher" type="text" placeholder="e.g. Dr. Sweety Gupta, Ms. Anjali" />
+        </div>
+        <div class="field">
+          <label for="fReminder">Reminder</label>
+          <select id="fReminder">
+            <option value="none">No Reminder</option>
+            <option value="0">At start time</option>
+            <option value="5" selected>5 min before</option>
+            <option value="10">10 min before</option>
+            <option value="15">15 min before</option>
+            <option value="30">30 min before</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="fNotes">Notes / Topic</label>
+        <input id="fNotes" type="text" placeholder="e.g. Unit 2 test, Lab report due" />
+      </div>
+
+      <div class="field-checkbox">
+        <label>
+          <input type="checkbox" id="fCompleted" />
+          <span>✓ Mark as Completed for today</span>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="deleteBtn" class="btn-danger hidden">Delete</button>
+        <div class="spacer"></div>
+        <button type="button" id="cancelBtn" class="btn-ghost">Cancel</button>
+        <button type="submit" class="btn-primary">Save Class</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Slots Modal -->
+<div id="slotsModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Edit Time Slots</h2>
+      <button type="button" class="close-x" id="closeSlotsModalBtn">&times;</button>
+    </div>
+    <div id="slotsList" class="slots-list"></div>
+    <form id="newSlotForm" class="new-slot-form">
+      <h4>+ Add New Time Slot</h4>
+      <div class="field-row">
+        <div class="field"><label>Start</label><input id="newSlotStart" type="time" required /></div>
+        <div class="field"><label>End</label><input id="newSlotEnd" type="time" required /></div>
+      </div>
+      <button type="submit" class="btn-secondary" style="margin-top:0.5rem;width:100%">Add Slot</button>
+    </form>
+    <div class="modal-actions">
+      <button type="button" id="resetSlotsBtn" class="btn-ghost">Reset College Slots</button>
+      <div class="spacer"></div>
+      <button type="button" id="doneSlotsBtn" class="btn-primary">Done</button>
     </div>
   </div>
+</div>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="script.js"></script>
+<div id="toast" class="toast"></div>
+<script src="script.js"></script>
 </body>
 </html>

@@ -1,530 +1,732 @@
-// College Schedule & Lecture Reminders
 (function () {
   'use strict';
 
-  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const typeLabels = {
+  var DATA_VERSION = 'glbajaj_sec_f_v2';
+  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var TYPE_LABELS = {
     lecture: 'Lecture',
     lab: 'Lab',
-    practical: 'Practical',
-    self: 'Self Study',
-    free: 'Free'
+    practical: 'Tutorial / Prac',
+    self: 'Library / Self',
+    free: 'Break / Free'
   };
 
-  const defaultSlots = [
-    { start: '08:00', end: '09:30' },
-    { start: '09:30', end: '11:00' },
-    { start: '11:00', end: '12:30' },
-    { start: '12:30', end: '14:00' },
-    { start: '14:00', end: '15:30' },
-    { start: '15:30', end: '17:00' },
+  var DEFAULT_SLOTS = [
+    { start: '09:10', end: '10:00', label: 'Period 1' },
+    { start: '10:00', end: '10:50', label: 'Period 2' },
+    { start: '10:50', end: '11:00', label: 'Morning Break' },
+    { start: '11:00', end: '11:50', label: 'Period 3' },
+    { start: '11:50', end: '12:40', label: 'Period 4' },
+    { start: '12:40', end: '13:30', label: 'Lunch Break' },
+    { start: '13:30', end: '14:20', label: 'Period 5' },
+    { start: '14:20', end: '15:10', label: 'Period 6' },
+    { start: '15:10', end: '16:00', label: 'Period 7' },
+    { start: '16:00', end: '16:50', label: 'Period 8' }
   ];
 
-  const defaultClasses = [
-    { id: 1, subject: 'Data Structures', day: 'Mon', start: '09:30', end: '11:00', type: 'lecture', room: '304', teacher: 'Dr. Sharma', notes: 'Trees & Graphs', reminder: '10' },
-    { id: 2, subject: 'Database Lab', day: 'Wed', start: '12:30', end: '14:00', type: 'lab', room: 'Lab 2', teacher: 'Prof. Verma', notes: 'SQL Triggers', reminder: '10' },
-    { id: 3, subject: 'Math Practical', day: 'Fri', start: '14:00', end: '15:30', type: 'practical', room: '310', teacher: 'Dr. Rao', notes: 'Calculus assignment', reminder: '5' },
+  var DEFAULT_CLASSES = [
+    // MONDAY
+    { id: 101, subject: 'PC', day: 'Mon', start: '09:10', end: '10:00', type: 'lecture', room: '211', teacher: 'Ms. Khushbu Singh', batch: 'both', reminder: '5', notes: 'Professional Communication' },
+    { id: 102, subject: 'DESIGN LAB', day: 'Mon', start: '10:00', end: '10:50', type: 'lab', room: 'Design Lab', teacher: 'Dr. Bablu Kumar Jha', batch: 'F1', reminder: '5', notes: 'Batch F1' },
+    { id: 103, subject: 'PL-T', day: 'Mon', start: '10:00', end: '10:50', type: 'practical', room: '211', teacher: 'Er. Mohit Singh', batch: 'F2', reminder: '5', notes: 'Programming Lang Tutorial' },
+    { id: 104, subject: 'Morning Break', day: 'Mon', start: '10:50', end: '11:00', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Morning Break' },
+    { id: 105, subject: 'DESIGN LAB', day: 'Mon', start: '11:00', end: '12:40', type: 'lab', room: 'Design Lab', teacher: 'Dr. Bablu Kumar Jha', batch: 'F1', reminder: '5', notes: 'Batch F1 (2 periods)' },
+    { id: 106, subject: 'PC LAB', day: 'Mon', start: '11:00', end: '12:40', type: 'lab', room: 'Language Lab', teacher: 'Miss. Raavi Bhargav', batch: 'F2', reminder: '5', notes: 'Language Lab (2 periods)' },
+    { id: 107, subject: 'Lunch Break', day: 'Mon', start: '12:40', end: '13:30', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Lunch' },
+    { id: 108, subject: 'PHYSICS', day: 'Mon', start: '13:30', end: '14:20', type: 'lecture', room: '211', teacher: 'Ms. Anjali', batch: 'both', reminder: '5', notes: 'Quantum Physics' },
+    { id: 109, subject: 'EE', day: 'Mon', start: '14:20', end: '15:10', type: 'lecture', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'both', reminder: '5', notes: 'Electrical Engineering' },
+    { id: 110, subject: 'PL', day: 'Mon', start: '15:10', end: '16:00', type: 'lecture', room: '211', teacher: 'Er. Mohit Singh', batch: 'both', reminder: '5', notes: 'Programming Language' },
+    { id: 111, subject: 'MATH-I', day: 'Mon', start: '16:00', end: '16:50', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+
+    // TUESDAY
+    { id: 201, subject: 'AI', day: 'Tue', start: '09:10', end: '10:00', type: 'lecture', room: '211', teacher: 'Er. Aayush Kumar Jha', batch: 'both', reminder: '5', notes: 'Intro to AI & Prompt Eng' },
+    { id: 202, subject: 'PL', day: 'Tue', start: '10:00', end: '10:50', type: 'lecture', room: '211', teacher: 'Er. Mohit Singh', batch: 'both', reminder: '5', notes: 'Programming Language' },
+    { id: 203, subject: 'Morning Break', day: 'Tue', start: '10:50', end: '11:00', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Break' },
+    { id: 204, subject: 'MATH-I', day: 'Tue', start: '11:00', end: '11:50', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+    { id: 205, subject: 'PHYSICS', day: 'Tue', start: '11:50', end: '12:40', type: 'lecture', room: '211', teacher: 'Ms. Anjali', batch: 'both', reminder: '5', notes: 'Quantum Physics' },
+    { id: 206, subject: 'Lunch Break', day: 'Tue', start: '12:40', end: '13:30', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Lunch' },
+    { id: 207, subject: 'ELECTRICAL LAB', day: 'Tue', start: '13:30', end: '15:10', type: 'lab', room: 'EE Lab', teacher: 'Er. Ankul Tiwari', batch: 'F1', reminder: '5', notes: 'EE Lab (Batch F1)' },
+    { id: 208, subject: 'MATH-I-T', day: 'Tue', start: '13:30', end: '14:20', type: 'practical', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'F2', reminder: '5', notes: 'Math Tutorial (Batch F2)' },
+    { id: 209, subject: 'PHY-T', day: 'Tue', start: '14:20', end: '15:10', type: 'practical', room: '211', teacher: 'Ms. Anjali', batch: 'F2', reminder: '5', notes: 'Physics Tutorial (Batch F2)' },
+    { id: 210, subject: 'EE', day: 'Tue', start: '15:10', end: '16:00', type: 'lecture', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'both', reminder: '5', notes: 'Electrical Engineering' },
+    { id: 211, subject: 'PC', day: 'Tue', start: '16:00', end: '16:50', type: 'lecture', room: '211', teacher: 'Ms. Khushbu Singh', batch: 'both', reminder: '5', notes: 'Professional Communication' },
+
+    // WEDNESDAY
+    { id: 301, subject: 'PC', day: 'Wed', start: '09:10', end: '10:00', type: 'lecture', room: '211', teacher: 'Ms. Khushbu Singh', batch: 'both', reminder: '5', notes: 'Professional Communication' },
+    { id: 302, subject: 'PHY-T', day: 'Wed', start: '10:00', end: '10:50', type: 'practical', room: '211', teacher: 'Ms. Anjali', batch: 'F1', reminder: '5', notes: 'Physics Tutorial (Batch F1)' },
+    { id: 303, subject: 'DESIGN LAB', day: 'Wed', start: '10:00', end: '10:50', type: 'lab', room: 'Design Lab', teacher: 'Dr. Bablu Kumar Jha', batch: 'F2', reminder: '5', notes: 'Design Lab (Batch F2)' },
+    { id: 304, subject: 'Morning Break', day: 'Wed', start: '10:50', end: '11:00', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Break' },
+    { id: 305, subject: 'PC LAB', day: 'Wed', start: '11:00', end: '12:40', type: 'lab', room: 'Language Lab', teacher: 'Miss. Raavi Bhargav', batch: 'F1', reminder: '5', notes: 'Language Lab (Batch F1)' },
+    { id: 306, subject: 'DESIGN LAB', day: 'Wed', start: '11:00', end: '12:40', type: 'lab', room: 'Design Lab', teacher: 'Dr. Bablu Kumar Jha', batch: 'F2', reminder: '5', notes: 'Design Lab (Batch F2)' },
+    { id: 307, subject: 'Lunch Break', day: 'Wed', start: '12:40', end: '13:30', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Lunch' },
+    { id: 308, subject: 'EE', day: 'Wed', start: '13:30', end: '14:20', type: 'lecture', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'both', reminder: '5', notes: 'Electrical Engineering' },
+    { id: 309, subject: 'MATH-I', day: 'Wed', start: '14:20', end: '15:10', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+    { id: 310, subject: 'PL', day: 'Wed', start: '15:10', end: '16:00', type: 'lecture', room: '211', teacher: 'Er. Mohit Singh', batch: 'both', reminder: '5', notes: 'Programming Language' },
+    { id: 311, subject: 'AI', day: 'Wed', start: '16:00', end: '16:50', type: 'lecture', room: '211', teacher: 'Er. Aayush Kumar Jha', batch: 'both', reminder: '5', notes: 'Intro to AI & Prompt Eng' },
+
+    // THURSDAY
+    { id: 401, subject: 'MATH-I', day: 'Thu', start: '09:10', end: '10:00', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+    { id: 402, subject: 'PC', day: 'Thu', start: '10:00', end: '10:50', type: 'lecture', room: '211', teacher: 'Ms. Khushbu Singh', batch: 'both', reminder: '5', notes: 'Professional Communication' },
+    { id: 403, subject: 'Morning Break', day: 'Thu', start: '10:50', end: '11:00', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Break' },
+    { id: 404, subject: 'PL-T', day: 'Thu', start: '11:00', end: '11:50', type: 'practical', room: '211', teacher: 'Er. Mohit Singh', batch: 'F1', reminder: '5', notes: 'PL Tutorial (Batch F1)' },
+    { id: 405, subject: 'LIB', day: 'Thu', start: '11:50', end: '12:40', type: 'self', room: 'Library', teacher: '', batch: 'F1', reminder: '5', notes: 'Library (Batch F1)' },
+    { id: 406, subject: 'ELECTRICAL LAB', day: 'Thu', start: '11:00', end: '12:40', type: 'lab', room: 'EE Lab', teacher: 'Er. Ankul Tiwari', batch: 'F2', reminder: '5', notes: 'EE Lab (Batch F2)' },
+    { id: 407, subject: 'Lunch Break', day: 'Thu', start: '12:40', end: '13:30', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Lunch' },
+    { id: 408, subject: 'PHYSICS LAB', day: 'Thu', start: '13:30', end: '15:10', type: 'lab', room: 'Physics Lab', teacher: 'Ms. Anjali', batch: 'F1', reminder: '5', notes: 'Physics Lab (Batch F1)' },
+    { id: 409, subject: 'EE-T', day: 'Thu', start: '13:30', end: '14:20', type: 'practical', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'F2', reminder: '5', notes: 'EE Tutorial (Batch F2)' },
+    { id: 410, subject: 'LIB', day: 'Thu', start: '14:20', end: '15:10', type: 'self', room: 'Library', teacher: '', batch: 'F2', reminder: '5', notes: 'Library (Batch F2)' },
+    { id: 411, subject: 'PHYSICS', day: 'Thu', start: '15:10', end: '16:00', type: 'lecture', room: '211', teacher: 'Ms. Anjali', batch: 'both', reminder: '5', notes: 'Quantum Physics' },
+    { id: 412, subject: 'AI', day: 'Thu', start: '16:00', end: '16:50', type: 'lecture', room: '211', teacher: 'Er. Aayush Kumar Jha', batch: 'both', reminder: '5', notes: 'Intro to AI & Prompt Eng' },
+
+    // FRIDAY
+    { id: 501, subject: 'PL', day: 'Fri', start: '09:10', end: '10:00', type: 'lecture', room: '211', teacher: 'Er. Mohit Singh', batch: 'both', reminder: '5', notes: 'Programming Language' },
+    { id: 502, subject: 'EE', day: 'Fri', start: '10:00', end: '10:50', type: 'lecture', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'both', reminder: '5', notes: 'Electrical Engineering' },
+    { id: 503, subject: 'Morning Break', day: 'Fri', start: '10:50', end: '11:00', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Break' },
+    { id: 504, subject: 'MATH-I', day: 'Fri', start: '11:00', end: '11:50', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+    { id: 505, subject: 'AI', day: 'Fri', start: '11:50', end: '12:40', type: 'lecture', room: '211', teacher: 'Er. Aayush Kumar Jha', batch: 'both', reminder: '5', notes: 'Intro to AI & Prompt Eng' },
+    { id: 506, subject: 'Lunch Break', day: 'Fri', start: '12:40', end: '13:30', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Lunch' },
+    { id: 507, subject: 'EE-T', day: 'Fri', start: '13:30', end: '14:20', type: 'practical', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'F1', reminder: '5', notes: 'EE Tutorial (Batch F1)' },
+    { id: 508, subject: 'MATH-I-T', day: 'Fri', start: '14:20', end: '15:10', type: 'practical', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'F1', reminder: '5', notes: 'Math Tutorial (Batch F1)' },
+    { id: 509, subject: 'PHYSICS LAB', day: 'Fri', start: '13:30', end: '15:10', type: 'lab', room: 'Physics Lab', teacher: 'Ms. Anjali', batch: 'F2', reminder: '5', notes: 'Physics Lab (Batch F2)' },
+    { id: 510, subject: 'PHYSICS', day: 'Fri', start: '15:10', end: '16:00', type: 'lecture', room: '211', teacher: 'Ms. Anjali', batch: 'both', reminder: '5', notes: 'Quantum Physics' },
+    { id: 511, subject: 'MATH-I', day: 'Fri', start: '16:00', end: '16:50', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+
+    // SATURDAY
+    { id: 601, subject: 'MATH-I', day: 'Sat', start: '09:10', end: '10:00', type: 'lecture', room: '211', teacher: 'Dr. Sweety Gupta', batch: 'both', reminder: '5', notes: 'Calculus & Linear Algebra' },
+    { id: 602, subject: 'PC', day: 'Sat', start: '10:00', end: '10:50', type: 'lecture', room: '211', teacher: 'Ms. Khushbu Singh', batch: 'both', reminder: '5', notes: 'Professional Communication' },
+    { id: 603, subject: 'Morning Break', day: 'Sat', start: '10:50', end: '11:00', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Break' },
+    { id: 604, subject: 'PL', day: 'Sat', start: '11:00', end: '11:50', type: 'lecture', room: '211', teacher: 'Er. Mohit Singh', batch: 'both', reminder: '5', notes: 'Programming Language' },
+    { id: 605, subject: 'EE', day: 'Sat', start: '11:50', end: '12:40', type: 'lecture', room: '211', teacher: 'Er. Ankul Tiwari', batch: 'both', reminder: '5', notes: 'Electrical Engineering' },
+    { id: 606, subject: 'Lunch Break', day: 'Sat', start: '12:40', end: '13:30', type: 'free', room: '', teacher: '', batch: 'both', reminder: 'none', notes: 'Lunch' },
+    { id: 607, subject: 'PHYSICS', day: 'Sat', start: '13:30', end: '14:20', type: 'lecture', room: '211', teacher: 'Ms. Anjali', batch: 'both', reminder: '5', notes: 'Quantum Physics' },
+    { id: 608, subject: 'AI', day: 'Sat', start: '14:20', end: '15:10', type: 'lecture', room: '211', teacher: 'Er. Aayush Kumar Jha', batch: 'both', reminder: '5', notes: 'Intro to AI & Prompt Eng' }
   ];
 
-  // State
-  let classes = [];
-  let slots = [];
-  let notificationsEnabled = false;
-  let activeFilterDay = 'all';
-  let editClassId = null;
-  const firedReminders = new Set();
+  var classes, slots, notifyOn, filterDay, filterBatch, editId, firedReminders;
 
-  // Load from LocalStorage
-  function loadData() {
+  function init() {
+    classes = [];
+    slots = [];
+    notifyOn = false;
+    filterDay = 'all';
+    filterBatch = 'all';
+    editId = null;
+    firedReminders = {};
+
+    load();
+    render();
+    wireEvents();
+    setInterval(tickReminders, 15000);
+  }
+
+  // --- Storage ---
+  function load() {
     try {
-      const storedClasses = localStorage.getItem('college_classes');
-      classes = storedClasses ? JSON.parse(storedClasses) : defaultClasses;
-
-      const storedSlots = localStorage.getItem('college_slots');
-      slots = storedSlots ? JSON.parse(storedSlots) : defaultSlots;
-
-      const storedNotify = localStorage.getItem('college_notifications');
-      notificationsEnabled = storedNotify === 'true';
-    } catch (e) {
-      console.error('Error reading localStorage', e);
-      classes = defaultClasses;
-      slots = defaultSlots;
-    }
-  }
-
-  function saveData() {
-    try {
-      localStorage.setItem('college_classes', JSON.stringify(classes));
-      localStorage.setItem('college_slots', JSON.stringify(slots));
-      localStorage.setItem('college_notifications', notificationsEnabled.toString());
-    } catch (e) {
-      console.error('Error saving to localStorage', e);
-    }
-    updateSubjectDatalist();
-    renderTimetable();
-    updateNextClassBanner();
-  }
-
-  // Toast
-  function showToast(msg) {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2800);
-  }
-
-  // Chime sound via Web Audio API
-  function playAlertSound() {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15); // A5
-
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.6);
-    } catch (err) {
-      console.warn('Audio chime blocked or unsupported', err);
-    }
-  }
-
-  // Populate Subject Autocomplete
-  function updateSubjectDatalist() {
-    const datalist = document.getElementById('subjectDatalist');
-    if (!datalist) return;
-    const subjects = Array.from(new Set(classes.map(c => c.subject).filter(Boolean)));
-    datalist.innerHTML = subjects.map(s => `<option value="${escapeHtml(s)}"></option>`).join('');
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  // Render Timetable
-  function renderTimetable() {
-    const tbody = document.getElementById('timetableBody');
-    const headerRow = document.getElementById('timetableHeader');
-    if (!tbody || !headerRow) return;
-
-    // Filter day columns if selected
-    const colsToShow = activeFilterDay === 'all' ? daysOfWeek : [activeFilterDay];
-
-    // Update Header
-    let headerHtml = '<th class="time-col">Time Bracket</th>';
-    colsToShow.forEach(day => {
-      headerHtml += `<th>${day}</th>`;
-    });
-    headerRow.innerHTML = headerHtml;
-
-    // Sort slots chronologically
-    slots.sort((a, b) => a.start.localeCompare(b.start));
-
-    tbody.innerHTML = '';
-    slots.forEach((slot, slotIndex) => {
-      const tr = document.createElement('tr');
-
-      // Time Column
-      const tdTime = document.createElement('td');
-      tdTime.className = 'time-cell';
-      tdTime.innerHTML = `<strong>${slot.start} – ${slot.end}</strong>`;
-      tr.appendChild(tdTime);
-
-      // Day Columns
-      colsToShow.forEach(day => {
-        const td = document.createElement('td');
-
-        // Find class that falls within or starts at this slot
-        const found = classes.find(c => {
-          if (c.day !== day) return false;
-          // Exact match or overlapping start
-          return c.start === slot.start || (c.start >= slot.start && c.start < slot.end);
-        });
-
-        if (found) {
-          td.innerHTML = `
-            <div class="slot-card type-${found.type}" data-id="${found.id}">
-              <div>
-                <div class="card-title">${escapeHtml(found.subject)}</div>
-                <div class="card-time">⏰ ${found.start} - ${found.end}</div>
-              </div>
-              <div class="card-footer">
-                <span class="card-badge">${typeLabels[found.type] || found.type}</span>
-                <span>${found.room ? '📍 ' + escapeHtml(found.room) : ''}</span>
-              </div>
-            </div>
-          `;
-          td.querySelector('.slot-card').addEventListener('click', () => openEditModal(found.id));
-        } else {
-          // Empty slot bracket — click to quickly fill in!
-          td.innerHTML = `
-            <div class="slot-empty" title="Click to fill in this slot">
-              <span>+ Fill slot</span>
-            </div>
-          `;
-          td.querySelector('.slot-empty').addEventListener('click', () => {
-            openAddModal(day, slot.start, slot.end);
-          });
-        }
-
-        tr.appendChild(td);
-      });
-
-      tbody.appendChild(tr);
-    });
-
-    // Update class counter
-    const countEl = document.getElementById('classCount');
-    if (countEl) {
-      countEl.textContent = `${classes.length} class${classes.length === 1 ? '' : 'es'} scheduled`;
-    }
-  }
-
-  // Open Modal: Add Class
-  function openAddModal(day = 'Mon', start = '09:00', end = '10:30') {
-    editClassId = null;
-    document.getElementById('modalTitle').textContent = 'Add Lecture / Class';
-    document.getElementById('fId').value = '';
-    document.getElementById('classForm').reset();
-
-    document.getElementById('fDay').value = day;
-    document.getElementById('fStart').value = start;
-    document.getElementById('fEnd').value = end;
-    document.getElementById('fReminder').value = '10';
-
-    document.getElementById('deleteBtn').classList.add('hidden');
-    document.getElementById('modal').classList.remove('hidden');
-    document.getElementById('fSubject').focus();
-  }
-
-  // Open Modal: Edit Class
-  function openEditModal(id) {
-    const cls = classes.find(c => c.id == id);
-    if (!cls) return;
-
-    editClassId = cls.id;
-    document.getElementById('modalTitle').textContent = 'Edit Lecture Timing & Details';
-    document.getElementById('fId').value = cls.id;
-    document.getElementById('fSubject').value = cls.subject || '';
-    document.getElementById('fDay').value = cls.day || 'Mon';
-    document.getElementById('fStart').value = cls.start || '';
-    document.getElementById('fEnd').value = cls.end || '';
-    document.getElementById('fType').value = cls.type || 'lecture';
-    document.getElementById('fRoom').value = cls.room || '';
-    document.getElementById('fTeacher').value = cls.teacher || '';
-    document.getElementById('fNotes').value = cls.notes || '';
-    document.getElementById('fReminder').value = cls.reminder !== undefined ? cls.reminder : '10';
-
-    document.getElementById('deleteBtn').classList.remove('hidden');
-    document.getElementById('modal').classList.remove('hidden');
-  }
-
-  function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
-    editClassId = null;
-  }
-
-  // Handle Form Submit
-  function handleClassFormSubmit(e) {
-    e.preventDefault();
-
-    const subject = document.getElementById('fSubject').value.trim();
-    const day = document.getElementById('fDay').value;
-    const start = document.getElementById('fStart').value;
-    const end = document.getElementById('fEnd').value;
-    const type = document.getElementById('fType').value;
-    const room = document.getElementById('fRoom').value.trim();
-    const teacher = document.getElementById('fTeacher').value.trim();
-    const notes = document.getElementById('fNotes').value.trim();
-    const reminder = document.getElementById('fReminder').value;
-
-    if (!subject || !start || !end) {
-      showToast('Please fill in Subject and Start/End times');
-      return;
-    }
-
-    if (start >= end) {
-      showToast('Start time must be before end time');
-      return;
-    }
-
-    if (editClassId) {
-      const idx = classes.findIndex(c => c.id == editClassId);
-      if (idx >= 0) {
-        classes[idx] = { id: editClassId, subject, day, start, end, type, room, teacher, notes, reminder };
-        showToast('Lecture updated successfully');
+      var v = localStorage.getItem('cs_version');
+      if (v !== DATA_VERSION) {
+        // First load or updated to G L Bajaj official timetable!
+        classes = JSON.parse(JSON.stringify(DEFAULT_CLASSES));
+        slots = JSON.parse(JSON.stringify(DEFAULT_SLOTS));
+        localStorage.setItem('cs_version', DATA_VERSION);
+        save();
+        return;
       }
+      var c = localStorage.getItem('cs_classes');
+      classes = c ? JSON.parse(c) : JSON.parse(JSON.stringify(DEFAULT_CLASSES));
+      var s = localStorage.getItem('cs_slots');
+      slots = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_SLOTS));
+      notifyOn = localStorage.getItem('cs_notify') === '1';
+    } catch (e) {
+      classes = JSON.parse(JSON.stringify(DEFAULT_CLASSES));
+      slots = JSON.parse(JSON.stringify(DEFAULT_SLOTS));
+    }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem('cs_classes', JSON.stringify(classes));
+      localStorage.setItem('cs_slots', JSON.stringify(slots));
+      localStorage.setItem('cs_notify', notifyOn ? '1' : '0');
+    } catch (e) {}
+  }
+
+  // --- Helpers ---
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function toast(msg) {
+    var t = $('toast'); if (!t) return;
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2500);
+  }
+
+  function parseTime(t) {
+    if (!t) return 0;
+    var p = t.split(':');
+    return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+  }
+
+  function getTodayDateKey() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function loadCompleted() {
+    try {
+      var key = 'cs_done_' + getTodayDateKey();
+      var val = localStorage.getItem(key);
+      return val ? JSON.parse(val) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveCompleted(data) {
+    try {
+      var key = 'cs_done_' + getTodayDateKey();
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {}
+  }
+
+  function isClassCompleted(id) {
+    var data = loadCompleted();
+    return !!data[id];
+  }
+
+  function toggleComplete(id) {
+    var data = loadCompleted();
+    if (data[id]) {
+      delete data[id];
+      toast('Marked incomplete');
     } else {
-      const newClass = {
-        id: Date.now(),
-        subject,
-        day,
-        start,
-        end,
-        type,
-        room,
-        teacher,
-        notes,
-        reminder
-      };
-      classes.push(newClass);
-      showToast('New lecture added');
+      data[id] = true;
+      toast('✓ Marked complete!');
+    }
+    saveCompleted(data);
+    render();
+  }
+
+  function setClassCompleted(id, status) {
+    var data = loadCompleted();
+    if (status) {
+      data[id] = true;
+    } else {
+      delete data[id];
+    }
+    saveCompleted(data);
+  }
+
+  // --- Render ---
+  function render() {
+    renderTable();
+    renderBanner();
+
+    var el = $('classCount');
+    if (el) {
+      var now = new Date();
+      var di = (now.getDay() + 6) % 7;
+      var today = di < DAYS.length ? DAYS[di] : null;
+
+      var todayClasses = today ? classes.filter(function (c) {
+        if (c.day !== today || c.type === 'free') return false;
+        if (filterBatch !== 'all' && c.batch && c.batch !== 'both' && c.batch !== filterBatch) return false;
+        return true;
+      }) : [];
+
+      var doneTodayCount = todayClasses.filter(function (c) { return isClassCompleted(c.id); }).length;
+
+      if (todayClasses.length > 0) {
+        el.innerHTML = '<strong>' + doneTodayCount + '/' + todayClasses.length + ' Done Today</strong>';
+      } else {
+        var activeCount = classes.filter(function (c) {
+          if (c.type === 'free') return false;
+          if (filterBatch !== 'all' && c.batch && c.batch !== 'both' && c.batch !== filterBatch) return false;
+          return true;
+        }).length;
+        el.textContent = activeCount + ' lectures scheduled';
+      }
     }
 
-    closeModal();
-    saveData();
-  }
-
-  // Delete Class
-  function handleDeleteClass() {
-    if (!editClassId) return;
-    if (confirm('Are you sure you want to delete this lecture?')) {
-      classes = classes.filter(c => c.id != editClassId);
-      closeModal();
-      saveData();
-      showToast('Lecture deleted');
+    var ns = $('notifyStatus');
+    if (ns) {
+      ns.textContent = notifyOn ? 'On' : 'Off';
+      ns.style.color = notifyOn ? '#10b981' : '';
     }
   }
 
-  // Time Slots / Brackets Management
-  function openSlotsModal() {
-    renderSlotsList();
-    document.getElementById('slotsModal').classList.remove('hidden');
+  function findClassesForSlot(day, slot) {
+    var result = [];
+    var slotStart = slot.start;
+    var slotEnd = slot.end;
+
+    for (var i = 0; i < classes.length; i++) {
+      var c = classes[i];
+      if (c.day !== day) continue;
+
+      // Filter by Batch if chosen
+      if (filterBatch !== 'all' && c.batch && c.batch !== 'both' && c.batch !== filterBatch) {
+        continue;
+      }
+
+      // Overlap condition: start < slotEnd && end > slotStart
+      if (c.start < slotEnd && c.end > slotStart) {
+        result.push(c);
+      }
+    }
+    return result;
   }
 
-  function closeSlotsModal() {
-    document.getElementById('slotsModal').classList.add('hidden');
-  }
+  function renderTable() {
+    var tbody = $('timetableBody');
+    var hdr = $('timetableHeader');
+    if (!tbody || !hdr) return;
 
-  function renderSlotsList() {
-    const list = document.getElementById('slotsList');
-    if (!list) return;
+    var cols = filterDay === 'all' ? DAYS : [filterDay];
 
-    list.innerHTML = slots.map((s, idx) => `
-      <div class="slot-item">
-        <span>⏰ <strong>${s.start} – ${s.end}</strong></span>
-        <button type="button" class="slot-delete-btn" data-index="${idx}" title="Delete slot">&times;</button>
-      </div>
-    `).join('');
+    hdr.innerHTML = '<th class="time-col">Time</th>' + cols.map(function (d) { return '<th>' + d + '</th>'; }).join('');
 
-    list.querySelectorAll('.slot-delete-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const index = parseInt(e.target.dataset.index, 10);
-        if (slots.length <= 1) {
-          showToast('Keep at least one time bracket');
-          return;
+    slots.sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+
+    var html = '';
+    for (var i = 0; i < slots.length; i++) {
+      var sl = slots[i];
+      var isBreakSlot = sl.label && (sl.label.toLowerCase().indexOf('break') >= 0 || sl.label.toLowerCase().indexOf('lunch') >= 0);
+
+      html += '<tr><td class="time-cell"><strong>' + sl.start + ' – ' + sl.end + '</strong>';
+      if (sl.label) {
+        html += '<div style="font-size:0.7rem;color:#64748b;font-weight:normal;margin-top:2px;">' + esc(sl.label) + '</div>';
+      }
+      html += '</td>';
+
+      for (var j = 0; j < cols.length; j++) {
+        var day = cols[j];
+        var matchingClasses = findClassesForSlot(day, sl);
+
+        if (matchingClasses.length > 0) {
+          // If only 1 class and it's a break
+          if (matchingClasses.length === 1 && matchingClasses[0].type === 'free') {
+            var brk = matchingClasses[0];
+            html += '<td><div class="break-cell" data-id="' + brk.id + '">'
+              + (brk.subject.indexOf('Lunch') >= 0 ? '🍱 ' : '☕ ') + esc(brk.subject) + '</div></td>';
+          } else {
+            html += '<td><div class="cell-stack">';
+            for (var m = 0; m < matchingClasses.length; m++) {
+              var cls = matchingClasses[m];
+              var batchBadge = cls.batch && cls.batch !== 'both' ? '<span class="batch-tag">' + cls.batch + '</span>' : '';
+              var isDone = isClassCompleted(cls.id);
+              var doneClass = isDone ? ' is-completed' : '';
+
+              html += '<div class="slot-card type-' + cls.type + doneClass + '" data-id="' + cls.id + '">'
+                + '<div class="card-header-row">'
+                + '  <div>'
+                + '    <div class="card-title">' + esc(cls.subject) + batchBadge + '</div>'
+                + '    <div class="card-time">⏰ ' + cls.start + ' - ' + cls.end + '</div>'
+                + '  </div>'
+                + '  <button type="button" class="btn-check" data-id="' + cls.id + '" title="' + (isDone ? 'Mark as incomplete' : 'Mark as completed') + '">' + (isDone ? '✓' : '○') + '</button>'
+                + '</div>'
+                + '<div class="card-footer">'
+                + '  <span class="card-badge' + (isDone ? ' badge-done' : '') + '">' + (isDone ? '✓ Completed' : (TYPE_LABELS[cls.type] || cls.type)) + '</span>'
+                + '  <span>' + (cls.room ? '📍 ' + esc(cls.room) : (cls.teacher ? '👤 ' + esc(cls.teacher.split(' ')[0]) : '')) + '</span>'
+                + '</div>'
+                + '</div>';
+            }
+            html += '</div></td>';
+          }
+        } else {
+          // Empty slot bracket
+          if (isBreakSlot) {
+            html += '<td><div class="break-cell">' + esc(sl.label) + '</div></td>';
+          } else {
+            html += '<td><div class="slot-empty" data-day="' + day + '" data-start="' + sl.start + '" data-end="' + sl.end + '"><span>+ Fill slot</span></div></td>';
+          }
         }
-        slots.splice(index, 1);
-        saveData();
-        renderSlotsList();
+      }
+      html += '</tr>';
+    }
+    tbody.innerHTML = html;
+
+    // Attach click handlers for check buttons
+    var checkBtns = tbody.querySelectorAll('.btn-check');
+    for (var cIdx = 0; cIdx < checkBtns.length; cIdx++) {
+      checkBtns[cIdx].addEventListener('click', function (e) {
+        e.stopPropagation();
+        var id = parseInt(this.getAttribute('data-id'), 10);
+        toggleComplete(id);
       });
-    });
+    }
+
+    var cards = tbody.querySelectorAll('.slot-card, .break-cell[data-id]');
+    for (var k = 0; k < cards.length; k++) {
+      cards[k].addEventListener('click', onCardClick);
+    }
+    var empties = tbody.querySelectorAll('.slot-empty');
+    for (var k = 0; k < empties.length; k++) {
+      empties[k].addEventListener('click', onEmptyClick);
+    }
   }
 
-  function handleNewSlotSubmit(e) {
-    e.preventDefault();
-    const start = document.getElementById('newSlotStart').value;
-    const end = document.getElementById('newSlotEnd').value;
+  function onCardClick() {
+    var idAttr = this.getAttribute('data-id');
+    if (!idAttr) return;
+    var id = parseInt(idAttr, 10);
+    openEdit(id);
+  }
 
-    if (!start || !end) return;
-    if (start >= end) {
-      showToast('Slot start must be before end');
+  function onEmptyClick() {
+    var day = this.getAttribute('data-day');
+    var start = this.getAttribute('data-start');
+    var end = this.getAttribute('data-end');
+    openAdd(day, start, end);
+  }
+
+  // --- Banner ---
+  function renderBanner() {
+    var banner = $('reminderBanner');
+    var text = $('reminderBannerText');
+    if (!banner || !text) return;
+
+    var now = new Date();
+    var di = (now.getDay() + 6) % 7; // Mon=0, Sun=6
+    if (di >= DAYS.length) {
+      banner.classList.add('hidden');
       return;
     }
+    var today = DAYS[di];
+    var mins = now.getHours() * 60 + now.getMinutes();
 
-    slots.push({ start, end });
-    saveData();
-    renderSlotsList();
-    e.target.reset();
-    showToast('New bracket added');
-  }
+    var next = null;
+    for (var i = 0; i < classes.length; i++) {
+      var c = classes[i];
+      if (c.day !== today || c.type === 'free') continue;
+      if (filterBatch !== 'all' && c.batch && c.batch !== 'both' && c.batch !== filterBatch) continue;
+      if (isClassCompleted(c.id)) continue; // Skip already completed classes
 
-  function resetSlots() {
-    if (confirm('Reset time brackets to default schedule?')) {
-      slots = [...defaultSlots];
-      saveData();
-      renderSlotsList();
-      showToast('Time brackets reset');
+      var p = parseTime(c.start);
+      if (p >= mins && (!next || p < parseTime(next.start))) next = c;
     }
-  }
 
-  // Up Next & Reminders Check
-  function updateNextClassBanner() {
-    const banner = document.getElementById('reminderBanner');
-    const bannerText = document.getElementById('reminderBannerText');
-    if (!banner || !bannerText) return;
-
-    const now = new Date();
-    const currentDayIndex = (now.getDay() + 6) % 7; // Mon = 0, Sun = 6
-    const currentDay = daysOfWeek[currentDayIndex];
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    // Classes for today
-    const todaysClasses = classes
-      .filter(c => c.day === currentDay)
-      .map(c => {
-        const [h, m] = c.start.split(':').map(Number);
-        return { ...c, startMinutes: h * 60 + m };
-      })
-      .sort((a, b) => a.startMinutes - b.startMinutes);
-
-    const upcoming = todaysClasses.find(c => c.startMinutes >= currentMinutes);
-
-    if (upcoming) {
-      const diff = upcoming.startMinutes - currentMinutes;
-      const timeStr = diff === 0 ? 'Starting now!' : `in ${diff} min${diff === 1 ? '' : 's'} (${upcoming.start})`;
-      bannerText.innerHTML = `<strong>Next Class:</strong> ${escapeHtml(upcoming.subject)} ${timeStr} ${upcoming.room ? '· ' + escapeHtml(upcoming.room) : ''}`;
+    if (next) {
+      var diff = parseTime(next.start) - mins;
+      var when = diff === 0 ? 'Starting now!' : 'in ' + diff + ' min (' + next.start + ')';
+      text.innerHTML = '<strong>Next Lecture:</strong> ' + esc(next.subject)
+        + (next.batch && next.batch !== 'both' ? ' [' + next.batch + ']' : '')
+        + ' ' + when + (next.room ? ' · Room ' + esc(next.room) : '')
+        + (next.teacher ? ' · ' + esc(next.teacher) : '');
       banner.classList.remove('hidden');
     } else {
       banner.classList.add('hidden');
     }
   }
 
-  // Periodic Reminder Engine
-  function checkReminders() {
-    updateNextClassBanner();
-
-    const now = new Date();
-    const currentDayIndex = (now.getDay() + 6) % 7;
-    const currentDay = daysOfWeek[currentDayIndex];
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    classes.forEach(c => {
-      if (c.day !== currentDay || !c.reminder || c.reminder === 'none') return;
-
-      const [h, m] = c.start.split(':').map(Number);
-      const classStartMin = h * 60 + m;
-      const alertOffset = parseInt(c.reminder, 10);
-      const alertTimeMin = classStartMin - alertOffset;
-
-      // Unique key for today's reminder
-      const reminderKey = `${now.toDateString()}_${c.id}_${alertOffset}`;
-
-      if (currentMinutes === alertTimeMin && !firedReminders.has(reminderKey)) {
-        firedReminders.add(reminderKey);
-        triggerReminderAlert(c, alertOffset);
-      }
-    });
+  // --- Modal: Add ---
+  function openAdd(day, start, end) {
+    editId = null;
+    $('modalTitle').textContent = 'Add Class / Lab';
+    $('classForm').reset();
+    $('fDay').value = day || 'Mon';
+    $('fStart').value = start || '09:10';
+    $('fEnd').value = end || '10:00';
+    $('fType').value = 'lecture';
+    $('fBatch').value = filterBatch !== 'all' ? filterBatch : 'both';
+    $('fReminder').value = '5';
+    $('fRoom').value = '211';
+    $('fCompleted').checked = false;
+    $('deleteBtn').classList.add('hidden');
+    $('modal').classList.remove('hidden');
+    $('fSubject').focus();
   }
 
-  function triggerReminderAlert(cls, minsBefore) {
-    playAlertSound();
+  // --- Modal: Edit ---
+  function openEdit(id) {
+    var cls = null;
+    for (var i = 0; i < classes.length; i++) {
+      if (classes[i].id === id) { cls = classes[i]; break; }
+    }
+    if (!cls) return;
 
-    const whenStr = minsBefore === 0 ? 'starts now!' : `starts in ${minsBefore} minutes!`;
-    const msg = `📚 ${cls.subject} (${typeLabels[cls.type] || cls.type}) ${whenStr} ${cls.room ? 'at ' + cls.room : ''}`;
+    editId = id;
+    $('modalTitle').textContent = 'Edit Timing & Class Details';
+    $('fSubject').value = cls.subject || '';
+    $('fDay').value = cls.day || 'Mon';
+    $('fBatch').value = cls.batch || 'both';
+    $('fStart').value = cls.start || '';
+    $('fEnd').value = cls.end || '';
+    $('fType').value = cls.type || 'lecture';
+    $('fRoom').value = cls.room || '';
+    $('fTeacher').value = cls.teacher || '';
+    $('fNotes').value = cls.notes || '';
+    $('fReminder').value = cls.reminder || 'none';
+    $('fCompleted').checked = isClassCompleted(cls.id);
+    $('deleteBtn').classList.remove('hidden');
+    $('modal').classList.remove('hidden');
+  }
 
-    showToast(msg);
+  function closeModal() {
+    $('modal').classList.add('hidden');
+    editId = null;
+  }
 
-    if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+  // --- Form Submit ---
+  function onSubmit(e) {
+    e.preventDefault();
+    var subject = $('fSubject').value.trim();
+    var day = $('fDay').value;
+    var batch = $('fBatch').value;
+    var start = $('fStart').value;
+    var end = $('fEnd').value;
+    var type = $('fType').value;
+    var room = $('fRoom').value.trim();
+    var teacher = $('fTeacher').value.trim();
+    var notes = $('fNotes').value.trim();
+    var reminder = $('fReminder').value;
+    var isDone = $('fCompleted').checked;
+
+    if (!subject) { toast('Please enter a subject name'); return; }
+    if (!start || !end) { toast('Please set start and end times'); return; }
+    if (start >= end) { toast('Start time must be before end time'); return; }
+
+    if (editId !== null) {
+      for (var i = 0; i < classes.length; i++) {
+        if (classes[i].id === editId) {
+          classes[i] = {
+            id: editId,
+            subject: subject,
+            day: day,
+            batch: batch,
+            start: start,
+            end: end,
+            type: type,
+            room: room,
+            teacher: teacher,
+            notes: notes,
+            reminder: reminder
+          };
+          break;
+        }
+      }
+      setClassCompleted(editId, isDone);
+      toast('Class updated');
+    } else {
+      var newId = Date.now();
+      classes.push({
+        id: newId,
+        subject: subject,
+        day: day,
+        batch: batch,
+        start: start,
+        end: end,
+        type: type,
+        room: room,
+        teacher: teacher,
+        notes: notes,
+        reminder: reminder
+      });
+      setClassCompleted(newId, isDone);
+      toast('Class added');
+    }
+    closeModal();
+    save();
+    render();
+  }
+
+  function onDelete() {
+    if (editId === null) return;
+    if (!confirm('Are you sure you want to delete this class?')) return;
+    classes = classes.filter(function (c) { return c.id !== editId; });
+    closeModal();
+    save();
+    render();
+    toast('Class deleted');
+  }
+
+  // --- Slots Modal ---
+  function openSlots() {
+    renderSlotsList();
+    $('slotsModal').classList.remove('hidden');
+  }
+
+  function closeSlots() {
+    $('slotsModal').classList.add('hidden');
+  }
+
+  function renderSlotsList() {
+    var list = $('slotsList'); if (!list) return;
+    var html = '';
+    for (var i = 0; i < slots.length; i++) {
+      var labelStr = slots[i].label ? ' (' + esc(slots[i].label) + ')' : '';
+      html += '<div class="slot-item"><span>⏰ <strong>' + slots[i].start + ' – ' + slots[i].end + '</strong>' + labelStr + '</span>'
+        + '<button type="button" class="slot-delete-btn" data-idx="' + i + '">&times;</button></div>';
+    }
+    list.innerHTML = html;
+
+    var btns = list.querySelectorAll('.slot-delete-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        var idx = parseInt(this.getAttribute('data-idx'), 10);
+        if (slots.length <= 1) { toast('Keep at least one slot'); return; }
+        slots.splice(idx, 1);
+        save(); render(); renderSlotsList();
+      });
+    }
+  }
+
+  function onNewSlot(e) {
+    e.preventDefault();
+    var s = $('newSlotStart').value, en = $('newSlotEnd').value;
+    if (!s || !en) return;
+    if (s >= en) { toast('Start must be before end'); return; }
+    slots.push({ start: s, end: en, label: 'Custom' });
+    save(); render(); renderSlotsList();
+    e.target.reset();
+    toast('Slot added');
+  }
+
+  function resetCollegeSchedule() {
+    if (!confirm('Reset schedule to original G L Bajaj Section F timetable?')) return;
+    classes = JSON.parse(JSON.stringify(DEFAULT_CLASSES));
+    slots = JSON.parse(JSON.stringify(DEFAULT_SLOTS));
+    save();
+    render();
+    toast('Official college timetable reloaded!');
+  }
+
+  function resetSlots() {
+    if (!confirm('Reset time slots to official college timings?')) return;
+    slots = JSON.parse(JSON.stringify(DEFAULT_SLOTS));
+    save(); render(); renderSlotsList();
+    toast('Slots reset to college timings');
+  }
+
+  // --- Reminders & Audio ---
+  function playBeep() {
+    try {
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      var ctx = new AudioCtx();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch (e) {}
+  }
+
+  function tickReminders() {
+    renderBanner();
+    if (!notifyOn) return;
+    var now = new Date();
+    var di = (now.getDay() + 6) % 7;
+    if (di >= DAYS.length) return;
+    var today = DAYS[di];
+    var mins = now.getHours() * 60 + now.getMinutes();
+    var dateKey = now.toDateString();
+
+    for (var i = 0; i < classes.length; i++) {
+      var c = classes[i];
+      if (c.day !== today || !c.reminder || c.reminder === 'none' || c.type === 'free') continue;
+      if (filterBatch !== 'all' && c.batch && c.batch !== 'both' && c.batch !== filterBatch) continue;
+
+      var cStart = parseTime(c.start);
+      var offset = parseInt(c.reminder, 10);
+      var alertAt = cStart - offset;
+      var key = dateKey + '_' + c.id + '_' + offset;
+
+      if (mins === alertAt && !firedReminders[key]) {
+        firedReminders[key] = true;
+        fireReminder(c, offset);
+      }
+    }
+  }
+
+  function fireReminder(c, minsBefore) {
+    playBeep();
+    var when = minsBefore === 0 ? 'starts now!' : 'starts in ' + minsBefore + ' min!';
+    var msg = '📚 ' + c.subject + (c.batch && c.batch !== 'both' ? ' [' + c.batch + ']' : '') + ' ' + when + (c.room ? ' (Room ' + c.room + ')' : '');
+    toast(msg);
+    if ('Notification' in window && Notification.permission === 'granted') {
       try {
         new Notification('College Lecture Reminder', {
           body: msg,
           icon: 'favicon.ico'
         });
-      } catch (err) {
-        console.warn('Notification trigger error', err);
-      }
+      } catch (e) {}
     }
   }
 
-  // Toggle Browser Notifications
-  async function toggleNotifications() {
-    const statusEl = document.getElementById('notifyStatus');
-    if (!('Notification' in window)) {
-      showToast('Notifications are not supported by this browser.');
-      return;
-    }
-
-    if (!notificationsEnabled) {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        notificationsEnabled = true;
-        statusEl.textContent = 'On';
-        statusEl.style.color = '#10b981';
-        saveData();
-        showToast('🔔 Reminders & notifications enabled!');
-        playAlertSound();
-      } else {
-        showToast('Notification permission was denied.');
-      }
-    } else {
-      notificationsEnabled = false;
-      statusEl.textContent = 'Off';
-      statusEl.style.color = 'inherit';
-      saveData();
-      showToast('Reminders muted.');
-    }
-  }
-
-  // Setup Event Listeners
-  document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    updateSubjectDatalist();
-    renderTimetable();
-    updateNextClassBanner();
-
-    // Notification button status init
-    const statusEl = document.getElementById('notifyStatus');
-    if (statusEl) {
-      if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
-        statusEl.textContent = 'On';
-        statusEl.style.color = '#10b981';
-      } else {
-        statusEl.textContent = 'Off';
-      }
-    }
-
-    // Modal buttons
-    document.getElementById('addBtn').addEventListener('click', () => openAddModal());
-    document.getElementById('cancelBtn').addEventListener('click', closeModal);
-    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-    document.getElementById('classForm').addEventListener('submit', handleClassFormSubmit);
-    document.getElementById('deleteBtn').addEventListener('click', handleDeleteClass);
-
-    // Time Slots Modal
-    document.getElementById('slotsBtn').addEventListener('click', openSlotsModal);
-    document.getElementById('closeSlotsModalBtn').addEventListener('click', closeSlotsModal);
-    document.getElementById('doneSlotsBtn').addEventListener('click', closeSlotsModal);
-    document.getElementById('newSlotForm').addEventListener('submit', handleNewSlotSubmit);
-    document.getElementById('resetSlotsBtn').addEventListener('click', resetSlots);
-
-    // Notifications toggle
-    document.getElementById('notifyBtn').addEventListener('click', toggleNotifications);
-
-    // Day tabs filtering
-    document.querySelectorAll('.day-tab').forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        activeFilterDay = e.target.dataset.day;
-        renderTimetable();
+  function toggleNotify() {
+    if (!('Notification' in window)) { toast('Notifications not supported'); return; }
+    if (!notifyOn) {
+      Notification.requestPermission().then(function (p) {
+        if (p === 'granted') {
+          notifyOn = true;
+          save();
+          render();
+          toast('🔔 Reminders & notifications enabled!');
+          playBeep();
+        } else {
+          toast('Notification permission was denied');
+        }
       });
-    });
+    } else {
+      notifyOn = false;
+      save();
+      render();
+      toast('Reminders muted');
+    }
+  }
 
-    // Close modals on backdrop click
-    document.getElementById('modal').addEventListener('click', (e) => {
-      if (e.target.id === 'modal') closeModal();
-    });
-    document.getElementById('slotsModal').addEventListener('click', (e) => {
-      if (e.target.id === 'slotsModal') closeSlotsModal();
-    });
+  // --- Wire Events ---
+  function wireEvents() {
+    $('addBtn').addEventListener('click', function () { openAdd('Mon', '09:10', '10:00'); });
+    $('cancelBtn').addEventListener('click', closeModal);
+    $('closeModalBtn').addEventListener('click', closeModal);
+    $('classForm').addEventListener('submit', onSubmit);
+    $('deleteBtn').addEventListener('click', onDelete);
 
-    // Check reminders every 20 seconds
-    setInterval(checkReminders, 20000);
-  });
+    $('slotsBtn').addEventListener('click', openSlots);
+    $('closeSlotsModalBtn').addEventListener('click', closeSlots);
+    $('doneSlotsBtn').addEventListener('click', closeSlots);
+    $('newSlotForm').addEventListener('submit', onNewSlot);
+    $('resetSlotsBtn').addEventListener('click', resetSlots);
+    $('resetScheduleBtn').addEventListener('click', resetCollegeSchedule);
+
+    $('notifyBtn').addEventListener('click', toggleNotify);
+
+    // Day tabs
+    var dayTabs = document.querySelectorAll('.day-tab');
+    for (var i = 0; i < dayTabs.length; i++) {
+      dayTabs[i].addEventListener('click', function () {
+        for (var j = 0; j < dayTabs.length; j++) dayTabs[j].classList.remove('active');
+        this.classList.add('active');
+        filterDay = this.getAttribute('data-day');
+        render();
+      });
+    }
+
+    // Batch tabs
+    var batchTabs = document.querySelectorAll('.batch-tab');
+    for (var i = 0; i < batchTabs.length; i++) {
+      batchTabs[i].addEventListener('click', function () {
+        for (var j = 0; j < batchTabs.length; j++) batchTabs[j].classList.remove('active');
+        this.classList.add('active');
+        filterBatch = this.getAttribute('data-batch');
+        render();
+      });
+    }
+
+    $('modal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+    $('slotsModal').addEventListener('click', function (e) { if (e.target === this) closeSlots(); });
+  }
+
+  // --- Boot ---
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
